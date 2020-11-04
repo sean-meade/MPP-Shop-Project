@@ -211,38 +211,58 @@ void processOrder(struct Shop s, struct Customer c)
 // 	}
 // }
 
-struct Customer createItemManually(struct Shop s)
+struct Customer orderInfo(struct Shop s)
 {
-	char name[20];
-	double budget;
-	char item[15];
-	int quantity;
+	// char name[20];
+	// double budget;
+	// char item[15];
+	// int quantity;
 
-	printf("What is your name: ");
-	scanf("%s", &name);
+	// printf("What is your name: ");
+	// scanf("%s", &name);
 
-	printf("What is your budget: ");
-	scanf("%lf", &budget);
+	// printf("What is your budget: ");
+	// scanf("%lf", &budget);
 
-	printf("What item you would like to purchase: ");
-	scanf("%s", &item);
+	// printf("What item you would like to purchase: ");
+	// scanf("%s", &item);
 
-	// this works fine
-	printf("How many of this item would you like: ");
-	scanf("%d", &quantity);
+	// // this works fine
+	// printf("How many of this item would you like: ");
+	// scanf("%d", &quantity);
 
-	printf("%s would like %d of %s and his budget is %.2f", name, quantity, item, budget);
+	char name[20] = "Sean";
+	double budget = 300;
+	char item[15] = "Bread";
+	int quantity = 3;
+
+	printf("%s would like %d of %s and his budget is %.2f\n", name, quantity, item, budget);
 
 	struct Customer currentCustomer = { name, budget };
+
+	struct Product product = { item };
+	struct ProductStock orderItem = { product, quantity };
+	currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
+
+	
+
+	return currentCustomer;
+	
+}
+
+struct Customer createCustomerManually()
+{
+	struct Shop shop = createAndStockShop();
+	struct Customer currentCustomer = orderInfo(shop);
 
 	double cost = 0;
 	double itemCost = 0;
 
 	for(int i = 0; i < currentCustomer.index; i++)
 	{
-		for (int j = 0; j < s.index; j++){
-			if (strcmp(currentCustomer.shoppingList[i].product.name, s.stock[j].product.name) == 0){
-				double itemPrice = s.stock[j].product.price;
+		for (int j = 0; j < shop.index; j++){
+			if (strcmp(currentCustomer.shoppingList[i].product.name, shop.stock[j].product.name) == 0){
+				double itemPrice = shop.stock[j].product.price;
 				currentCustomer.shoppingList[i].product.price = itemPrice;
 				itemCost = itemPrice * currentCustomer.shoppingList[i].quantity;
 			}	
@@ -251,15 +271,7 @@ struct Customer createItemManually(struct Shop s)
 	}
 
 	currentCustomer.orderCost = cost;
-	//printf("%.2f", currentCustomer.orderCost);
-
-	return currentCustomer;
-	
-}
-
-struct Customer createCustomerManually()
-{
-	createItemManually();
+	printf("current cost: €%.2f\n", currentCustomer.orderCost);
 }
 
 int main(void) 
