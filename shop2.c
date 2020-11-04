@@ -57,8 +57,6 @@ struct Shop createAndStockShop()
         exit(EXIT_FAILURE);
 
     while ((read = getline(&line, &len, fp)) != -1) {
-        // printf("Retrieved line of length %zu:\n", read);
-        // printf("%s IS A LINE", line);
 		char *n = strtok(line, ",");
 		char *p = strtok(NULL, ",");
 		char *q = strtok(NULL, ",");
@@ -69,7 +67,6 @@ struct Shop createAndStockShop()
 		struct Product product = { name, price };
 		struct ProductStock stockItem = { product, quantity };
 		shop.stock[shop.index++] = stockItem;
-		// printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
     }
 	
 	return shop;
@@ -87,24 +84,9 @@ void printShop(struct Shop s)
 
 int main(void) 
 {
-	// struct Customer dominic = { "Dominic", 100.0 };
-	//
-	// struct Product coke = { "Can Coke", 1.10 };
-	// struct Product bread = { "Bread", 0.7 };
-	// // printProduct(coke);
-	//
-	// struct ProductStock cokeStock = { coke, 20 };
-	// struct ProductStock breadStock = { bread, 2 };
-	//
-	// dominic.shoppingList[dominic.index++] = cokeStock;
-	// dominic.shoppingList[dominic.index++] = breadStock;
-	//
-	// printCustomer(dominic);
 	
 	struct Shop shop = createAndStockShop();
 	printShop(shop);
-	
-// printf("The shop has %d of the product %s\n", cokeStock.quantity, cokeStock.product.name);
-	
+		
     return 0;
 }
