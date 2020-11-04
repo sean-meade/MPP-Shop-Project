@@ -34,19 +34,18 @@ void printProduct(struct Product p)
 void printCustomer(struct Customer c)
 {
 	printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f\n", c.name, c.budget);
-	// printf("-------------\n");
-	// for(int i = 0; i < c.index; i++)
-	// {
-	// 	printProduct(c.shoppingList[i].product);
-	// 	printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
-	// 	double cost = c.shoppingList[i].quantity * c.shoppingList[i].product.price; 
-	// 	printf("The cost to %s will be €%.2f\n", c.name, cost);
-	// }
+	printf("-------------\n");
+	for(int i = 0; i < c.index; i++)
+	{
+		printProduct(c.shoppingList[i].product);
+		printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
+		double cost = c.shoppingList[i].quantity * c.shoppingList[i].product.price; 
+		printf("The cost to %s will be €%.2f\n", c.name, cost);
+	}
 }
 
 void createCustomerAndOrder()
 {
-	
 
 	FILE * fp;
     char * line = NULL;
@@ -69,7 +68,26 @@ void createCustomerAndOrder()
 
 	struct Customer currentCustomer = { name, budget };
 
-	printf("Customers name is %s and their budget is €%.2f", currentCustomer.name, currentCustomer.budget);
+	printf("Customers name is %s and their budget is €%.2f\n", currentCustomer.name, currentCustomer.budget);
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		char *n = strtok(line, ",");
+		char *q = strtok(NULL, ",");
+		int quantity = atoi(q);
+		char *name = malloc(sizeof(char) * 50);
+		strcpy(name, n);
+		struct Product product = { name };
+		struct ProductStock orderItem = { product, quantity };
+		currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
+	}
+
+	for(int i = 0; i < currentCustomer.index; i++)
+	{
+		printProduct(currentCustomer.shoppingList[i].product);
+		printf("%s ORDERS %d OF ABOVE PRODUCT\n", currentCustomer.name, currentCustomer.shoppingList[i].quantity);
+		double cost = currentCustomer.shoppingList[i].quantity * currentCustomer.shoppingList[i].product.price; 
+		printf("The cost to %s will be €%.2f\n", currentCustomer.name, cost);
+	}
 
 }
 
