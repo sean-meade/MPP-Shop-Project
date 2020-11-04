@@ -156,18 +156,22 @@ struct Customer createCustomerAndOrder(struct Shop s)
 void processOrder(struct Shop s, struct Customer c)
 {
 	// Maybe use a boolean that if orderCost is True run the loop to check if the item is in stock and if both of them are true run the last part else process order.
-	bool costOK = true;
-	bool itemInList = true;
+	// bool costOK;
+	// costOK = true;
+	// bool itemInList;
+	// itemInList = true;
+	int costOK = 1;
+	int itemInList = 1;
 
 	if(c.orderCost > c.budget){
-		costOK == false;
+		costOK = 0;
 		// throw error
 		printf("Sorry there seems to be an error while processing your payment.\n");
 		printf("Please contact your bank if issue continues.\n");
 		
 	}
 
-	if (costOK == true){	
+	if (costOK == 1){	
 		for(int i = 0; i < c.index; i++)
 		{
 			int count;
@@ -177,16 +181,14 @@ void processOrder(struct Shop s, struct Customer c)
 					count = count + 1;
 					if (count >= s.index){
 						printf("Sorry we do not sell %s please resubmit your order.\n", c.shoppingList[i].product.name);
-						itemInList == false;
-						break;
+						itemInList = 0;
 					}			
 				}	
 			}
-			
 		}
 	}
 
-	if ((costOK == true) && (itemInList == true)){	
+	if ((costOK == 1) && (itemInList == 1)){	
 		for(int i = 0; i < c.index; i++)
 		{
 			for (int j = 0; j < s.index; j++){
@@ -198,26 +200,42 @@ void processOrder(struct Shop s, struct Customer c)
 			}
 		}
 	}
-	
 }
 
-void printShop(struct Shop s)
-{
-	printf("Shop has %.2f in cash\n", s.cash);
-	for (int i = 0; i < s.index; i++)
-	{
-		printf("The shop has %d of %s at €%.2f each\n", s.stock[i].quantity, s.stock[i].product.name, s.stock[i].product.price);
-	}
-}
+// void printShop(struct Shop s)
+// {
+// 	printf("Shop has %.2f in cash\n", s.cash);
+// 	for (int i = 0; i < s.index; i++)
+// 	{
+// 		printf("The shop has %d of %s at €%.2f each\n", s.stock[i].quantity, s.stock[i].product.name, s.stock[i].product.price);
+// 	}
+// }
 
 int main(void) 
 {
 	struct Shop shop = createAndStockShop();
 	struct Customer customer = createCustomerAndOrder(shop);
-	// createCustomerAndOrder(shop);
-	//printShop(shop);
+	// // createCustomerAndOrder(shop);
+	// //printShop(shop);
 
-	processOrder(shop, customer);
+	// processOrder(shop, customer);
+	char typeOfOrder[6];
+	
+	printf("To submit a manual order please write \"manual\" below\n");
+	printf("To submit a csv order please write \"csv\" below\n");
+	printf("Type of order: ");
+	scanf("%[^\n]%*c", &typeOfOrder);
+	
+	if(strcmp(typeOfOrder, "csv") == 0){
+		
+		//printf("inside: %s", typeOfOrder);
+		processOrder(shop, customer);
+	}
+
+	if(strcmp(typeOfOrder, "manual") == 0){
+		
+		
+	}
 	
     return 0;
 }
