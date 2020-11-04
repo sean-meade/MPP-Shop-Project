@@ -50,7 +50,7 @@ struct Shop createAndStockShop()
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
-	size_t read;
+    ssize_t read;
 
     fp = fopen("stock.csv", "r");
     if (fp == NULL)
@@ -69,7 +69,7 @@ struct Shop createAndStockShop()
 		struct Product product = { name, price };
 		struct ProductStock stockItem = { product, quantity };
 		shop.stock[shop.index++] = stockItem;
-		printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
+		// printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
     }
 	
 	return shop;
@@ -77,7 +77,6 @@ struct Shop createAndStockShop()
 
 void printShop(struct Shop s)
 {
-	printf("printShop is called");
 	printf("Shop has %.2f in cash\n", s.cash);
 	for (int i = 0; i < s.index; i++)
 	{
@@ -88,9 +87,24 @@ void printShop(struct Shop s)
 
 int main(void) 
 {
-	printf("the main is running");
+	// struct Customer dominic = { "Dominic", 100.0 };
+	//
+	// struct Product coke = { "Can Coke", 1.10 };
+	// struct Product bread = { "Bread", 0.7 };
+	// // printProduct(coke);
+	//
+	// struct ProductStock cokeStock = { coke, 20 };
+	// struct ProductStock breadStock = { bread, 2 };
+	//
+	// dominic.shoppingList[dominic.index++] = cokeStock;
+	// dominic.shoppingList[dominic.index++] = breadStock;
+	//
+	// printCustomer(dominic);
+	
 	struct Shop shop = createAndStockShop();
 	printShop(shop);
-		
+	
+// printf("The shop has %d of the product %s\n", cokeStock.quantity, cokeStock.product.name);
+	
     return 0;
 }

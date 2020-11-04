@@ -46,15 +46,20 @@ void printCustomer(struct Customer c)
 
 struct Shop createAndStockShop()
 {
-	struct Shop shop = { 200 };
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
-	size_t read;
+    ssize_t read;
 
-    fp = fopen("stock.csv", "r");
+    fp = fopen("../stock.csv", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
+
+	read = getline(&line, &len, fp);
+	float cash = atof(line);
+	// printf("cash in shop is %.2f\n", cash);
+	
+	struct Shop shop = { cash };
 
     while ((read = getline(&line, &len, fp)) != -1) {
         // printf("Retrieved line of length %zu:\n", read);
@@ -69,7 +74,7 @@ struct Shop createAndStockShop()
 		struct Product product = { name, price };
 		struct ProductStock stockItem = { product, quantity };
 		shop.stock[shop.index++] = stockItem;
-		printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
+		// printf("NAME OF PRODUCT %s PRICE %.2f QUANTITY %d\n", name, price, quantity);
     }
 	
 	return shop;
@@ -77,7 +82,6 @@ struct Shop createAndStockShop()
 
 void printShop(struct Shop s)
 {
-	printf("printShop is called");
 	printf("Shop has %.2f in cash\n", s.cash);
 	for (int i = 0; i < s.index; i++)
 	{
@@ -88,9 +92,8 @@ void printShop(struct Shop s)
 
 int main(void) 
 {
-	printf("the main is running");
 	struct Shop shop = createAndStockShop();
 	printShop(shop);
-		
+
     return 0;
 }
