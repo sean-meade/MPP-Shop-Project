@@ -211,6 +211,57 @@ void processOrder(struct Shop s, struct Customer c)
 // 	}
 // }
 
+struct Customer createItemManually(struct Shop s)
+{
+	char name[20];
+	double budget;
+	char item[15];
+	int quantity;
+
+	printf("What is your name: ");
+	scanf("%s", &name);
+
+	printf("What is your budget: ");
+	scanf("%lf", &budget);
+
+	printf("What item you would like to purchase: ");
+	scanf("%s", &item);
+
+	// this works fine
+	printf("How many of this item would you like: ");
+	scanf("%d", &quantity);
+
+	printf("%s would like %d of %s and his budget is %.2f", name, quantity, item, budget);
+
+	struct Customer currentCustomer = { name, budget };
+
+	double cost = 0;
+	double itemCost = 0;
+
+	for(int i = 0; i < currentCustomer.index; i++)
+	{
+		for (int j = 0; j < s.index; j++){
+			if (strcmp(currentCustomer.shoppingList[i].product.name, s.stock[j].product.name) == 0){
+				double itemPrice = s.stock[j].product.price;
+				currentCustomer.shoppingList[i].product.price = itemPrice;
+				itemCost = itemPrice * currentCustomer.shoppingList[i].quantity;
+			}	
+		}
+		cost = cost + itemCost;
+	}
+
+	currentCustomer.orderCost = cost;
+	//printf("%.2f", currentCustomer.orderCost);
+
+	return currentCustomer;
+	
+}
+
+struct Customer createCustomerManually()
+{
+	createItemManually();
+}
+
 int main(void) 
 {
 	struct Shop shop = createAndStockShop();
@@ -219,23 +270,25 @@ int main(void)
 	// //printShop(shop);
 
 	// processOrder(shop, customer);
-	char typeOfOrder[6];
+	// char typeOfOrder[6];
 	
-	printf("To submit a manual order please write \"manual\" below\n");
-	printf("To submit a csv order please write \"csv\" below\n");
-	printf("Type of order: ");
-	scanf("%[^\n]%*c", &typeOfOrder);
+	// printf("To submit a manual order please write \"manual\" below\n");
+	// printf("To submit a csv order please write \"csv\" below\n");
+	// printf("Type of order: ");
+	// scanf("%[^\n]%*c", &typeOfOrder);
 	
-	if(strcmp(typeOfOrder, "csv") == 0){
+	// if(strcmp(typeOfOrder, "csv") == 0){
 		
-		//printf("inside: %s", typeOfOrder);
-		processOrder(shop, customer);
-	}
+	// 	//printf("inside: %s", typeOfOrder);
+	// 	processOrder(shop, customer);
+	// }
 
-	if(strcmp(typeOfOrder, "manual") == 0){
+	// if(strcmp(typeOfOrder, "manual") == 0){
+	// 	createCustomerManually();
 		
-		
-	}
+	// }
+
+	createCustomerManually();
 	
     return 0;
 }
