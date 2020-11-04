@@ -44,6 +44,35 @@ void printCustomer(struct Customer c)
 	// }
 }
 
+void createCustomerAndOrder()
+{
+	
+
+	FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+	size_t read;
+
+    fp = fopen("customer.csv", "r");
+    if (fp == NULL)
+        exit(EXIT_FAILURE);
+
+	read = getline(&line, &len, fp);
+
+	char *n = strtok(line, ",");
+	char *b = strtok(NULL, ",");
+
+	char *name = malloc(sizeof(char) * 50);
+	strcpy(name, n);
+
+	double budget = atof(b);
+
+	struct Customer currentCustomer = { name, budget };
+
+	printf("Customers name is %s and their budget is €%.2f", currentCustomer.name, currentCustomer.budget);
+
+}
+
 struct Shop createAndStockShop()
 {
     FILE * fp;
@@ -92,8 +121,10 @@ void printShop(struct Shop s)
 
 int main(void) 
 {
-	struct Shop shop = createAndStockShop();
-	printShop(shop);
-		
+	// struct Shop shop = createAndStockShop();
+	// printShop(shop);
+
+	createCustomerAndOrder();	
+	
     return 0;
 }
