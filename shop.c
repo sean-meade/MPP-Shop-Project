@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 struct Product {
 	char* name;
@@ -25,6 +26,11 @@ struct Customer {
 	int index;
 	double orderCost;
 };
+
+struct notAvailableList {
+		char *item;
+		int index;
+	};
 
 // void printProduct(struct Product p)
 // {
@@ -142,15 +148,56 @@ struct Customer createCustomerAndOrder(struct Shop s)
 	}
 
 	currentCustomer.orderCost = cost;
-
-	printf("%.2f", currentCustomer.orderCost);
-
+	//printf("%.2f", currentCustomer.orderCost);
 
 	return currentCustomer;
 }
 
 void processOrder(struct Shop s, struct Customer c)
 {
+	// Maybe use a boolean that if orderCost is True run the loop to check if the item is in stock and if both of them are true run the last part else process order.
+	bool costOK = true;
+	bool itemInList = true;
+
+	if(c.orderCost > c.budget){
+		costOK == false;
+		// throw error
+		printf("Sorry there seems to be an error while processing your payment.\n");
+		printf("Please contact your bank if issue continues.\n");
+		
+	}
+
+	if (costOK == true){	
+		for(int i = 0; i < c.index; i++)
+		{
+			int count;
+			count = 0;
+			for (int j = 0; j < s.index; j++){
+				if (strcmp(c.shoppingList[i].product.name, s.stock[j].product.name) != 0){
+					count = count + 1;
+					if (count >= s.index){
+						printf("Sorry we do not sell %s please resubmit your order.\n", c.shoppingList[i].product.name);
+						itemInList == false;
+						break;
+					}			
+				}	
+			}
+			
+		}
+	}
+
+	if ((costOK == true) && (itemInList == true)){	
+		for(int i = 0; i < c.index; i++)
+		{
+			for (int j = 0; j < s.index; j++){
+				if (strcmp(c.shoppingList[i].product.name, s.stock[j].product.name) == 0){
+					if (c.shoppingList[i].quantity > s.stock[j].quantity){
+						printf("Sorry we don't have enough stock to fullfil your order.\n");
+					}
+				}
+			}
+		}
+	}
 	
 }
 
@@ -166,8 +213,11 @@ void printShop(struct Shop s)
 int main(void) 
 {
 	struct Shop shop = createAndStockShop();
-	createCustomerAndOrder(shop);
+	struct Customer customer = createCustomerAndOrder(shop);
+	// createCustomerAndOrder(shop);
 	//printShop(shop);
+
+	processOrder(shop, customer);
 	
     return 0;
 }
