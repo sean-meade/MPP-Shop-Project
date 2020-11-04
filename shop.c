@@ -23,6 +23,7 @@ struct Customer {
 	double budget;
 	struct ProductStock shoppingList[10];
 	int index;
+	double orderCost;
 };
 
 // void printProduct(struct Product p)
@@ -112,29 +113,45 @@ struct Customer createCustomerAndOrder(struct Shop s)
 		int quantity = atoi(q);
 		char *name = malloc(sizeof(char) * 50);
 		strcpy(name, n);
-		double price = 0;
-
-		for (int j = 0; j < s.index; j++){
-			if (name = s.stock[j].product.name){
-				price = s.stock[j].product.price;
-				printf("the price here is %.2f\n", price);
-			}
-		}
-
-		struct Product product = { name , price};
+		struct Product product = { name };
 		struct ProductStock orderItem = { product, quantity };
 		currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
 	}
 
+	// for(int i = 0; i < currentCustomer.index; i++)
+	// {
+	// 	printProduct(currentCustomer.shoppingList[i].product);
+	// 	printf("%s ORDERS %d OF ABOVE PRODUCT\n", currentCustomer.name, currentCustomer.shoppingList[i].quantity);
+	// 	double cost = currentCustomer.shoppingList[i].quantity * currentCustomer.shoppingList[i].product.price; 
+	// 	printf("The cost to %s will be €%.2f\n", currentCustomer.name, cost);
+	// }
+
+	double cost = 0;
+	double itemCost = 0;
+
 	for(int i = 0; i < currentCustomer.index; i++)
 	{
-		printf("%s ORDERS %d OF ABOVE PRODUCT\n", currentCustomer.name, currentCustomer.shoppingList[i].quantity);
-		double cost = currentCustomer.shoppingList[i].quantity * currentCustomer.shoppingList[i].product.price; 
-		printf("The cost to %s will be €%.2f\n", currentCustomer.name, cost);
+		for (int j = 0; j < s.index; j++){
+			if (strcmp(currentCustomer.shoppingList[i].product.name, s.stock[j].product.name) == 0){
+				double itemPrice = s.stock[j].product.price;
+				currentCustomer.shoppingList[i].product.price = itemPrice;
+				itemCost = itemPrice * currentCustomer.shoppingList[i].quantity;
+			}	
+		}
+		cost = cost + itemCost;
 	}
 
-	
+	currentCustomer.orderCost = cost;
 
+	printf("%.2f", currentCustomer.orderCost);
+
+
+	return currentCustomer;
+}
+
+void processOrder(struct Shop s, struct Customer c)
+{
+	
 }
 
 void printShop(struct Shop s)
@@ -148,10 +165,9 @@ void printShop(struct Shop s)
 
 int main(void) 
 {
-
 	struct Shop shop = createAndStockShop();
-	printShop(shop);
 	createCustomerAndOrder(shop);
+	//printShop(shop);
 	
     return 0;
 }
