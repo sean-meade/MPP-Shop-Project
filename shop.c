@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <math.h>
 
 struct Product {
 	char* name;
@@ -224,27 +224,34 @@ struct Customer orderInfo(struct Shop s)
 	// printf("What is your budget: ");
 	// scanf("%lf", &budget);
 
-	// printf("What item you would like to purchase: ");
-	// scanf("%s", &item);
-
-	// // this works fine
-	// printf("How many of this item would you like: ");
-	// scanf("%d", &quantity);
-
+	
 	char name[20] = "Sean";
-	double budget = 300;
-	char item[15] = "Bread";
-	int quantity = 3;
-
-	printf("%s would like %d of %s and his budget is %.2f\n", name, quantity, item, budget);
-
+	double budget= 300;
+	char item[15];
+	int quantity;
+	int index;
 	struct Customer currentCustomer = { name, budget };
+	int answer = 1;
 
-	struct Product product = { item };
-	struct ProductStock orderItem = { product, quantity };
-	currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
+	do	{
+		// char item[15] = "Bread";
+		// int quantity = 3;
+		printf("What item would you like to purchase: ");
+		scanf(" %s", &item);
+
+		printf("How many of this item would you like: ");
+		scanf(" %d", &quantity);
+		struct Product product = { item };
+		struct ProductStock orderItem = { product, quantity };
+		currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
+
+		printf("Do you wish to add another item? (type 1 for yes and 0 for no): ");
+		scanf(" %d",&answer);
+		
+	} while ( answer == 1);
 
 	
+
 
 	return currentCustomer;
 	
