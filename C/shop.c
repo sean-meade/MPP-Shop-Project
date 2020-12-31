@@ -47,11 +47,13 @@ double cash = s.cash - c.orderCost;
 
 fprintf(fp,"%f", cash);
 
-for (int x = 0; x < s.index- 1; x++){
+for (int x = 0; x < s.index; x++){
+	bool finished_with_item = false;
 
 	for (int q = 0; q < c.index ; q++){
-
+		
 char *sItemName = s.stock[x].product.name;
+
 char *item = c.shoppingList[q].product.name;
 
 if (strlen(item) == strlen(sItemName)) {	
@@ -63,11 +65,13 @@ if (strlen(item) == strlen(sItemName)) {
 	}
 }
 
-if (strcmp(item, sItemName) == 0) {
+if (strcmp(item, sItemName) == 0 && c.shoppingList[q].product.price != 0 && finished_with_item == false) {
 	fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity - c.shoppingList[q].quantity);
-} else
+	finished_with_item = true;
+} else if (finished_with_item == false)
 {
 	fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity);
+	finished_with_item = true;
 }
 
 	}
@@ -75,6 +79,79 @@ if (strcmp(item, sItemName) == 0) {
 
 
 fclose(fp);
+
+}
+
+struct Customer processOrder(struct Shop s, struct Customer c)
+{
+	// Maybe use a boolean that if orderCost is True run the loop to check if the item is in stock and if both of them are true run the last part else process order.
+	// bool costOK;
+	// costOK = true;
+	// bool itemInList;
+	// itemInList = true;
+	int itemInList = 1;
+
+	if(c.orderCost > c.budget){
+		
+		// throw error
+		printf("Sorry there seems to be an error while processing your payment.\n");
+		printf("Please contact your bank if issue continues.\n");
+		exit(0);
+	}
+
+	double cost = 0;
+	double itemCost = 0;
+
+	
+	struct ProductStock orderItem;
+
+	for(int i = 0; i < c.index; i++)
+	{
+		struct Product product;
+		
+		int count;
+		count = 0;
+		char *item = c.shoppingList[i].product.name;
+		for (int j = 0; j < s.index; j++){
+			char *sItemName = s.stock[j].product.name;
+
+			if (strlen(item) == strlen(sItemName)) {	
+				for(int y=0;y<=strlen(sItemName);y++){
+					if(sItemName[y]>=65&&sItemName[y]<=90)
+						sItemName[y]=sItemName[y]+32;
+					if(item[y]>=65&&item[y]<=90)
+						item[y]=item[y]+32;
+				}
+			}
+			if (strcmp(item, sItemName) != 0){
+				count = count + 1;
+				if (count >= s.index){
+					printf("Sorry we do not sell %s.\n", c.shoppingList[i].product.name);
+					itemInList = 0;
+				}			
+			} else if (strcmp(c.shoppingList[i].product.name, s.stock[j].product.name) == 0){
+					if ( c.shoppingList[i].quantity > s.stock[j].quantity) {
+						printf("Sorry we don't have enough %s in stock to fullfil your order.\n", s.stock[j].product.name);
+					}
+				 	if (c.shoppingList[i].quantity < s.stock[j].quantity) {
+						 
+					double itemPrice = s.stock[j].product.price;
+					c.shoppingList[i].product.price = itemPrice;
+					itemCost = itemPrice * c.shoppingList[i].quantity;
+					
+					cost = cost + itemCost;
+					
+				}
+			}
+			
+		}
+		
+	}
+	printf("%f this is the cost", cost);
+
+	c.orderCost = cost;
+
+	return c;
 
 }
 
@@ -89,10 +166,8 @@ void printReciept(struct Customer c) {
 		double itemCost = c.shoppingList[i].quantity * c.shoppingList[i].product.price;
 		printf("           = €%.2f\n", itemCost);
 		printf("--------------------\n");
-		totalCost = totalCost + itemCost;
 		
 	}
-	c.orderCost = totalCost;
 	printf("TOTAL COST TO %s IS €%.2f", c.name, c.orderCost);
 }
 
@@ -198,7 +273,7 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 			strcpy(item, itemHolder);
 
 			int count = 0;
-			for (int x = 0; x < shop.index- 1; x++){
+			for (int x = 0; x < shop.index; x++){
 
 			char *sItemName = shop.stock[x].product.name;
 
@@ -237,6 +312,7 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 			} // if name in stock
 			else if (strcmp(item, sItemName) != 0) {
 				count = count + 1;
+				
 			}
 			if (count >= shop.index) {
 				printf("We do not stock %s.\n", item);
@@ -269,6 +345,10 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 	return currentCustomer;
 
 }
+
+
+	
+
 
 struct Customer createCustomerAndOrder(struct Shop s)
 {
@@ -305,26 +385,11 @@ struct Customer createCustomerAndOrder(struct Shop s)
 		currentCustomer.shoppingList[currentCustomer.index++] = orderItem;
 	}
 
-	double cost = 0;
-	double itemCost = 0;
-
-	for(int i = 0; i < currentCustomer.index; i++)
-	{
-		for (int j = 0; j < s.index; j++){
-			if (strcmp(currentCustomer.shoppingList[i].product.name, s.stock[j].product.name) == 0){
-				double itemPrice = s.stock[j].product.price;
-				currentCustomer.shoppingList[i].product.price = itemPrice;
-				itemCost = itemPrice * currentCustomer.shoppingList[i].quantity;
-			}	
-		}
-		cost = cost + itemCost;
-	}
-
-	currentCustomer.orderCost = cost;
+	
 
 	fclose(fp);
 
-	return currentCustomer;
+	return processOrder(s, currentCustomer);;
 }
 
 int main(void) 
@@ -341,6 +406,7 @@ int main(void)
 	if(strcmp(typeOfOrder, "c") == 0){
 		struct Customer customer = createCustomerAndOrder(shop);
 		printReciept(customer);
+		updateStockFile(customer, shop);
 	} else if(strcmp(typeOfOrder, "m") == 0){
 		struct Customer customer = createCustomerAndOrderManually(shop);
 		printReciept(customer);
