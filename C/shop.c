@@ -34,63 +34,61 @@ struct notAvailableList {
 		int index;
 	};
 
+// function to update the stock after order 
 void updateStockFile(struct Customer c, struct Shop s){
-FILE *fp;
+	FILE *fp;
+
+	fp=fopen("../stock.csv","w+");
+
+	double cash = s.cash - c.orderCost;
 
 
 
-fp=fopen("csv/stock.csv","w+");
+	fprintf(fp,"%f", cash);
 
-double cash = s.cash - c.orderCost;
+	// loops through shop and customer items 
+	for (int x = 0; x < s.index; x++){
+		bool finished_with_item = false;
 
+		for (int q = 0; q < c.index ; q++){
+			
+			char *sItemName = s.stock[x].product.name;
 
+			char *item = c.shoppingList[q].product.name;
 
-fprintf(fp,"%f", cash);
+			// This loop will reduce string to lowercase for both so a user can 
+			// input bread, Bread or BrEaD and all will be accepted
+			if (strlen(item) == strlen(sItemName)) {	
+				for(int y=0;y<=strlen(sItemName);y++){
+					if(sItemName[y]>=65&&sItemName[y]<=90)
+						sItemName[y]=sItemName[y]+32;
+					if(item[y]>=65&&item[y]<=90)
+						item[y]=item[y]+32;
+				}
+			}
 
-for (int x = 0; x < s.index; x++){
-	bool finished_with_item = false;
+			// If item was order it will remove the right amount otherwise it will just leave it the same
+			if (strcmp(item, sItemName) == 0 && c.shoppingList[q].product.price != 0 && finished_with_item == false) {
+				fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity - c.shoppingList[q].quantity);
+				finished_with_item = true;
+			} else if (finished_with_item == false){
+				fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity);
+				finished_with_item = true;
+			}
 
-	for (int q = 0; q < c.index ; q++){
-		
-char *sItemName = s.stock[x].product.name;
-
-char *item = c.shoppingList[q].product.name;
-
-if (strlen(item) == strlen(sItemName)) {	
-	for(int y=0;y<=strlen(sItemName);y++){
-		if(sItemName[y]>=65&&sItemName[y]<=90)
-			sItemName[y]=sItemName[y]+32;
-		if(item[y]>=65&&item[y]<=90)
-			item[y]=item[y]+32;
+		}
 	}
-}
-
-if (strcmp(item, sItemName) == 0 && c.shoppingList[q].product.price != 0 && finished_with_item == false) {
-	fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity - c.shoppingList[q].quantity);
-	finished_with_item = true;
-} else if (finished_with_item == false)
-{
-	fprintf(fp,"\n%s,%f,%d",s.stock[x].product.name,s.stock[x].product.price,s.stock[x].quantity);
-	finished_with_item = true;
-}
+		fclose(fp);
 
 	}
-}
 
-
-fclose(fp);
-
-}
-
+// Processes order
 struct Customer processOrder(struct Shop s, struct Customer c)
 {
-	// Maybe use a boolean that if orderCost is True run the loop to check if the item is in stock and if both of them are true run the last part else process order.
-	// bool costOK;
-	// costOK = true;
-	// bool itemInList;
-	// itemInList = true;
+
 	int itemInList = 1;
 
+	// Checks to see if user has enough in budget
 	if(c.orderCost > c.budget){
 		
 		// throw error
@@ -105,6 +103,7 @@ struct Customer processOrder(struct Shop s, struct Customer c)
 	
 	struct ProductStock orderItem;
 
+	// Checks to see if we have enough stock or even have item and calculates cost of order
 	for(int i = 0; i < c.index; i++)
 	{
 		struct Product product;
@@ -147,7 +146,6 @@ struct Customer processOrder(struct Shop s, struct Customer c)
 		}
 		
 	}
-	printf("%f this is the cost", cost);
 
 	c.orderCost = cost;
 
@@ -155,6 +153,7 @@ struct Customer processOrder(struct Shop s, struct Customer c)
 
 }
 
+// Prints the receipt like other two programs
 void printReciept(struct Customer c) {
 	double totalCost;
 	printf("--------------------\n");
@@ -171,6 +170,7 @@ void printReciept(struct Customer c) {
 	printf("TOTAL COST TO %s IS €%.2f", c.name, c.orderCost);
 }
 
+// Craetes the shop from the file
 struct Shop createAndStockShop()
 {
     FILE * fp;
@@ -178,7 +178,7 @@ struct Shop createAndStockShop()
     size_t len = 0;
 	size_t read;
 
-    fp = fopen("stock.csv", "r");
+    fp = fopen("../stock.csv", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
@@ -209,6 +209,7 @@ struct Shop createAndStockShop()
 	return shop;
 }
 
+// Takes in information from user for order
 struct Customer createCustomerAndOrderManually(struct Shop shop)
 {
 	 
@@ -219,9 +220,9 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 	char *ptr;
 	char inputItem[30];
 
+	// Asks for relevant information
 	printf("What is your name: ");
 	fgets(inputName, 30, stdin);
-	// scanf("%s", &inputName);
 
 	char *nameHolder = strtok(inputName, "\n");
 
@@ -232,7 +233,6 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 
 	printf("What is your spending limit for this order: €");
 	fgets(inputBudget, 10, stdin);
-	// scanf(" %lf", &budget);
 	printf("\n");
 
 	double budget;
@@ -243,6 +243,7 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 	
 	char inputAnswer[10];
 
+	// Lists the items in stock
 	printf("The items we have in stock are: \n");
 	
 	for (int j = 0; j < shop.index; j++){
@@ -257,6 +258,9 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 	int answer = 1;
 	char *yesNo;
 	double cost;
+
+	// Allows the user to add items to their order and throws error messages
+	// from to many ordered ect.
 	do	{
 		printf("Do you wish to add an item to your shopping list (y/n)?: ");
 		fgets(inputAnswer, 3, stdin);
@@ -277,6 +281,8 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 
 			char *sItemName = shop.stock[x].product.name;
 
+			// Again same chunk of code as above to allow the user to only need the spelling right
+			// not upper or lower case
 			if (strlen(item) == strlen(sItemName)) {	
 				for(int y=0;y<=strlen(sItemName);y++){
 					if(sItemName[y]>=65&&sItemName[y]<=90)
@@ -335,6 +341,7 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 		
 	} while ( answer == 1);
 
+	// checks budget to see if they have enough to fill order
 	if(currentCustomer.orderCost > currentCustomer.budget){
 		// throw error
 		printf("Sorry there seems to be an error while processing your payment.\n");
@@ -346,10 +353,7 @@ struct Customer createCustomerAndOrderManually(struct Shop shop)
 
 }
 
-
-	
-
-
+// creates order from csv file
 struct Customer createCustomerAndOrder(struct Shop s)
 {
 
@@ -358,7 +362,7 @@ struct Customer createCustomerAndOrder(struct Shop s)
     size_t len = 0;
 	size_t read;
 
-    fp = fopen("customer.csv", "r");
+    fp = fopen("../customer.csv", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
@@ -392,6 +396,8 @@ struct Customer createCustomerAndOrder(struct Shop s)
 	return processOrder(s, currentCustomer);;
 }
 
+// Starting function to ask user what kind of order they want to make
+// and runs the appropriate functions
 int main(void) 
 {
 	struct Shop shop = createAndStockShop();

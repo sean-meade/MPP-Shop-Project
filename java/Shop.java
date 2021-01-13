@@ -10,6 +10,7 @@ public class Shop {
 
 	private double cash;
 	private ArrayList<ProductStock> stock;
+	double costToCustomer;
 
 	public Shop(String fileName) {
 		stock = new ArrayList<>();
@@ -37,9 +38,9 @@ public class Shop {
 		}
 	}
 	
-	private ProductStock find(String name){
+	public ProductStock find(String name){
 		for(ProductStock ps : stock){
-			if (name.equals(ps.getName())){
+			if (name.equalsIgnoreCase(ps.getName())){
 				return ps;
 			}
 		}
@@ -50,8 +51,8 @@ public class Shop {
 		return stock;
 	}
 	
+	// Process the order to check for faults
 	public void processOrder(Customer c){
-		double costToCustomer = 0;
 		// look through the customer order
 		for(ProductStock ps : c.getShoppingList()){
 			ProductStock shopPS = find(ps.getName());
@@ -61,7 +62,45 @@ public class Shop {
 				// retreive the unit price
 				double unitPrice = shopPS.getUnitPrice();
 				// set the price on the product held by customer
-				ps.getProduct().setPrice(unitPrice);
+				if (shopPS.getQuantity() >= ps.getQuantity()) {
+					ps.getProduct().setPrice(unitPrice);
+				} else {
+					System.out.println("We don't have enough " + ps.getName() + " in stock for your order.");
+				}
+				
+				// this way we can use the ps method to calc cost;
+				// System.out.println("The cost of " + ps.getName() + " will be " + ps.getCost());
+				// Calculate Cost to customer
+				costToCustomer += ps.getCost();
+			} else {
+				System.out.println("Sorry we do not stock " + ps.getName() + ".\n");
+			}
+		}
+		// Check if customer has enough to process order
+		if (costToCustomer > c.getBudget()){
+			System.out.println("Sorry you seem to have insufficient funds for this order.");
+		} else {
+			System.out.println("The cost to " + c.getName() + " is " + costToCustomer);
+		}
+	}
+
+	// Couldn't figure out inheretence for Java to there is a lot of repeated code
+	public void processCustomOrder(CustomCustomer c){
+		
+		// look through the customer order
+		for(ProductStock ps : c.getShoppingList()){
+			ProductStock shopPS = find(ps.getName());
+			// System.out.println(shopPS);
+			if (shopPS != null) {
+				
+				// retreive the unit price
+				double unitPrice = shopPS.getUnitPrice();
+				// set the price on the product held by customer
+				if (shopPS.getQuantity() >= ps.getQuantity()) {
+					ps.getProduct().setPrice(unitPrice);
+				} else {
+					System.out.println("We don't have enough " + ps.getName() + "in stock for your order.");
+				}
 				
 				// this way we can use the ps method to calc cost;
 				// System.out.println("The cost of " + ps.getName() + " will be " + ps.getCost());
@@ -76,6 +115,13 @@ public class Shop {
 		System.out.println("The cost to " + c.getName() + " is " + costToCustomer);
 		}
 	}
+	public double getCost() {
+		return costToCustomer;
+	}
+
+	public double getCash() {
+		return cash;
+	}
 
 	@Override
 	public String toString() {
@@ -83,13 +129,9 @@ public class Shop {
 	}
 
 	public static void main(String[] args) {
-		Shop shop = new Shop("stock.csv");
-		// System.out.println(shop);
-		Customer john = new Customer("../customer.csv");
-		// System.out.println(john);
-		
-		shop.processOrder(john);
-		// System.out.println(shop.getStock());
+		Shop shop = new Shop("../stock.csv");
+		ChooseOrderType orderType = new ChooseOrderType(shop);
+
 	}
 
 }

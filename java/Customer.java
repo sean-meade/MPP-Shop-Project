@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.io.Console;
 
 
 public class Customer {
@@ -13,8 +12,11 @@ public class Customer {
 	private String name;
 	private double budget;
 	private ArrayList<ProductStock> shoppingList;
+	private double cost;
+	private int count;
 	
-	public Customer(String fileName) {
+	
+	public Customer(String fileName, Shop s) {
 		shoppingList = new ArrayList<>();
 		List<String> lines = Collections.emptyList();
 		try {
@@ -27,11 +29,27 @@ public class Customer {
 			for (String line : lines) {
 				String[] arr = line.split(",");
 				String productName = arr[0];
+				count = 0;
 				// Search shop stock for productName and get price and set instead of 0 in line 30
-				int quantity = Integer.parseInt(arr[1].trim());
-				Product p = new Product(productName, 0);
-				ProductStock s = new ProductStock(p, quantity);
-				shoppingList.add(s);
+				for (ProductStock ps : s.getStock()) {
+					count += 1;
+					if (productName.equalsIgnoreCase(ps.getName())){	
+					int quantity = Integer.parseInt(arr[1].trim());
+					// int qtyLeft = ps.getQuantity() - quantity;
+					
+					Product p = new Product(productName, 0);
+					ProductStock sFile = new ProductStock(p, quantity);
+					shoppingList.add(sFile);
+					if (quantity <= ps.getQuantity()){
+						cost += quantity * ps.getUnitPrice();
+					
+					}
+					
+				}
+				if (count > s.getStock().size()) {
+					System.out.println("We do not sell " + productName);
+				}
+				}
 			}
 		}
 
@@ -43,6 +61,10 @@ public class Customer {
 	
 	public String getName() {
 		return name;
+	}
+
+	public double getCost() {
+		return cost;
 	}
 
 	public double getBudget() {
@@ -64,8 +86,8 @@ public class Customer {
 	}
 	
 	public static void main(String[] args) {
-		Customer james = new Customer("../customer.csv");
-		// james.getShoppingList().get(2).getName()
-		// System.out.println(james);
+		// Customer james = new Customer("../customer.csv");
+		// // james.getShoppingList().get(2).getName()
+		//  System.out.println(james);
 	}
 }
